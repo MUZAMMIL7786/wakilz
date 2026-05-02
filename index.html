@@ -3,148 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant - Kimi Style</title>
+    <title>Kimi | Build Your Vision</title>
+    <!-- Tailwind for Layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter (Closest to Geist) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --bg-color: #030303;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
+            background-color: var(--bg-color);
             color: white;
             margin: 0;
             overflow-x: hidden;
+            letter-spacing: -0.02em;
         }
 
-        /* Star Background Canvas */
-        #starCanvas {
+        /* --- Background Animation --- */
+        #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at center, #0d0d1a 0%, #050505 100%);
         }
 
-        /* Custom Gradients */
+        /* --- Custom Gradients & UI Elements --- */
         .text-gradient {
-            background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6);
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .btn-gradient {
-            background: linear-gradient(90deg, #6366f1, #a855f7);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        .btn-primary {
+            background: var(--accent-gradient);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-gradient:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
         }
 
-        /* Glassmorphism Chat Window */
-        .chat-container {
-            background: rgba(20, 20, 25, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
             border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        /* Typing cursor animation */
-        .typing::after {
-            content: '|';
-            animation: blink 1s infinite;
+        /* --- Chat Animation Logic --- */
+        .message {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-cursor::after {
+            content: "";
+            width: 2px;
+            height: 1.2em;
+            background: #a855f7;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
         }
 
         @keyframes blink {
             50% { opacity: 0; }
         }
 
-        /* Scrollbar styling */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
+        /* Custom Scrollbar */
+        .chat-scroll::-webkit-scrollbar { width: 5px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Star Background -->
-    <canvas id="starCanvas"></canvas>
+    <div id="canvas-container">
+        <canvas id="starField"></canvas>
+    </div>
 
-    <!-- Header -->
-    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto relative z-10">
+    <!-- Nav Bar -->
+    <nav class="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto relative z-10">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg"></div>
-            <span class="text-xl font-bold tracking-tight">Kimi<span class="text-indigo-400">.</span></span>
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
+                <span class="text-white font-bold text-xs">K</span>
+            </div>
+            <span class="text-xl font-semibold tracking-tighter">Kimi</span>
         </div>
         <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-            <a href="#" class="hover:text-white transition">Features</a>
+            <a href="#" class="hover:text-white transition">Product</a>
+            <a href="#" class="hover:text-white transition">Developers</a>
             <a href="#" class="hover:text-white transition">Showcase</a>
-            <a href="#" class="hover:text-white transition">Pricing</a>
         </div>
-        <button class="px-5 py-2 rounded-full border border-gray-700 text-sm font-medium hover:bg-white/5 transition">
-            Log in
+        <button class="px-5 py-2 rounded-full border border-white/10 text-sm font-medium bg-white/5 hover:bg-white/10 transition">
+            Sign In
         </button>
     </nav>
 
-    <!-- Main Content -->
-    <main class="relative z-10 flex flex-col items-center pt-20 px-4">
-        <h1 class="text-5xl md:text-7xl font-bold text-center mb-6 tracking-tight">
-            Build your dreams with <br> 
-            <span class="text-gradient">Intelligence.</span>
+    <!-- Hero Section -->
+    <main class="relative z-10 flex flex-col items-center pt-24 px-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-medium mb-8">
+            <span class="flex h-2 w-2 rounded-full bg-purple-500"></span>
+            Kimi K2.5 Model is now live
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-bold text-center max-w-4xl tracking-tight leading-[1.1] mb-6">
+            Build the next generation <br>
+            <span class="text-gradient">with AI Intelligence.</span>
         </h1>
-        <p class="text-gray-400 text-center max-w-2xl text-lg mb-12">
-            The next generation of AI-assisted creation. Describe your vision, and watch as our agent builds, styles, and deploys your website in seconds.
+
+        <p class="text-gray-400 text-center max-w-xl text-lg mb-10 leading-relaxed">
+            From design to deployment, Kimi assists in every step. Build high-performance websites and applications using our natural language interface.
         </p>
 
-        <!-- Enlarged Animated Chat Window -->
-        <div class="chat-container w-full max-w-4xl h-[500px] flex flex-col overflow-hidden mb-12">
+        <div class="flex gap-4 mb-20">
+            <button class="btn-primary px-8 py-4 rounded-full font-bold text-sm">
+                Get Started for Free
+            </button>
+            <button class="px-8 py-4 rounded-full bg-white/5 border border-white/10 font-bold text-sm hover:bg-white/10 transition">
+                Documentation
+            </button>
+        </div>
+
+        <!-- ENLARGED CHAT WINDOW -->
+        <div class="glass-card w-full max-w-4xl h-[550px] flex flex-col overflow-hidden mb-32">
             <!-- Chat Header -->
-            <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-                    <span class="ml-2 text-xs font-mono text-gray-400 uppercase tracking-widest">Kimi-K2.5-Model</span>
-                </div>
-                <div class="text-xs text-gray-500">Connected</div>
-            </div>
-
-            <!-- Chat Content -->
-            <div id="chatBox" class="flex-1 p-8 overflow-y-auto custom-scrollbar flex flex-col gap-6">
-                <!-- Messages will be injected here -->
-            </div>
-
-            <!-- Chat Input (Visual Only) -->
-            <div class="p-4 border-t border-white/10 bg-white/5">
-                <div class="relative">
-                    <div class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-500">
-                        Type your prompt here...
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/5">
+                <div class="flex items-center gap-2">
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                     </div>
-                    <div class="absolute right-3 top-2.5 px-3 py-1 bg-indigo-600 rounded-md text-xs font-semibold">Send</div>
+                    <div class="ml-4 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                        kimi-agent-v2.5
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Ready to build
+                </div>
+            </div>
+
+            <!-- Chat Content Area -->
+            <div id="chatBox" class="flex-1 p-8 overflow-y-auto chat-scroll flex flex-col gap-6">
+                <!-- Messages Injected Here -->
+            </div>
+
+            <!-- Fake Input Bar -->
+            <div class="p-4 border-t border-white/5 bg-white/5">
+                <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 border border-white/10">
+                    <div class="flex-1 text-sm text-gray-500">Ask Kimi to build something...</div>
+                    <div class="flex items-center gap-2">
+                        <kbd class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-gray-500">⌘</kbd>
+                        <kbd class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-gray-500">K</kbd>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- CTA Button -->
-        <button class="btn-gradient px-10 py-4 rounded-full text-lg font-bold mb-20">
-            Start Generating Now
-        </button>
     </main>
 
+    <!-- Background Stars Logic -->
     <script>
-        // --- Star Background Logic ---
-        const canvas = document.getElementById('starCanvas');
+        const canvas = document.getElementById('starField');
         const ctx = canvas.getContext('2d');
         let stars = [];
 
@@ -152,85 +191,83 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             stars = [];
-            for (let i = 0; i < 200; i++) {
+            for (let i = 0; i < 250; i++) {
                 stars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
                     size: Math.random() * 1.5,
                     opacity: Math.random(),
-                    speed: Math.random() * 0.05
+                    fade: Math.random() * 0.02
                 });
             }
         }
 
-        function drawStars() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            stars.forEach(star => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+            stars.forEach(s => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
                 ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
-                
-                star.opacity += star.speed;
-                if (star.opacity > 1 || star.opacity < 0) star.speed = -star.speed;
+                s.opacity += s.fade;
+                if (s.opacity > 1 || s.opacity < 0.1) s.fade = -s.fade;
             });
-            requestAnimationFrame(drawStars);
+            requestAnimationFrame(draw);
         }
 
         window.addEventListener('resize', initStars);
         initStars();
-        drawStars();
+        draw();
+    </script>
 
-        // --- Animated Chat Logic ---
+    <!-- Animated Chat Messaging Logic -->
+    <script>
         const chatBox = document.getElementById('chatBox');
         const conversation = [
-            { role: 'user', text: "Can you help me build a modern landing page for my new startup?" },
-            { role: 'assistant', text: "Of course! I've already initialized a dark-themed layout with a high-performance star background. What primary colors should I use for your brand?" },
-            { role: 'user', text: "Let's go with deep purples and electric blues. It needs to look futuristic." },
-            { role: 'assistant', text: "Perfect choice. Applying indigo-violet gradients and adding smooth glassmorphism effects now. Your site is ready for deployment. 🚀" }
+            { role: 'user', text: "Hey Kimi, can you build me a dashboard for my SaaS startup?" },
+            { role: 'assistant', text: "Of course! I'm setting up a Next.js 14 project with Tailwind CSS and Framer Motion. I'll include a dark-mode first design, real-time charts, and a glass-morphic sidebar. Shall we proceed?" },
+            { role: 'user', text: "Yes, and make sure the charts use purple and pink gradients to match my brand." },
+            { role: 'assistant', text: "Got it. Applying custom Chart.js configurations with linear gradients. I'm also adding a responsive layout for mobile users. Your preview is generating now..." }
         ];
 
-        async function typeMessage(messageObj) {
-            const div = document.createElement('div');
-            div.className = `flex ${messageObj.role === 'user' ? 'justify-end' : 'justify-start'}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-[80%] px-5 py-3 rounded-2xl text-sm leading-relaxed ${
-                messageObj.role === 'user' 
-                ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-100' 
-                : 'bg-white/5 border border-white/10 text-gray-200'
-            }`;
-            
-            div.appendChild(bubble);
-            chatBox.appendChild(div);
-            
-            // Auto-scroll
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            const text = messageObj.text;
+        async function typeText(element, text) {
+            element.classList.add('typing-cursor');
             for (let i = 0; i <= text.length; i++) {
-                bubble.textContent = text.slice(0, i);
-                if (i < text.length) bubble.className += ' typing';
-                else bubble.className = bubble.className.replace(' typing', '');
-                
-                await new Promise(res => setTimeout(res, 20 + Math.random() * 30));
+                element.textContent = text.slice(0, i);
+                await new Promise(r => setTimeout(r, 20 + Math.random() * 20));
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
+            element.classList.remove('typing-cursor');
         }
 
         async function startChat() {
             for (const msg of conversation) {
-                await new Promise(res => setTimeout(res, 1000));
-                await typeMessage(msg);
+                await new Promise(r => setTimeout(r, 800));
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} message`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `max-w-[80%] px-5 py-3 rounded-2xl text-sm leading-relaxed ${
+                    msg.role === 'user' 
+                    ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-100' 
+                    : 'bg-white/5 border border-white/10 text-gray-200'
+                }`;
+                
+                wrapper.appendChild(bubble);
+                chatBox.appendChild(wrapper);
+                
+                await typeText(bubble, msg.text);
             }
-            // Loop chat for demo effect
+
+            // Loop back after delay
             setTimeout(() => {
                 chatBox.innerHTML = '';
                 startChat();
             }, 5000);
         }
 
-        startChat();
+        window.onload = startChat;
     </script>
 </body>
 </html>
