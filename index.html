@@ -1,273 +1,1471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kimi | Build Your Vision</title>
-    <!-- Tailwind for Layout -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter (Closest to Geist) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #030303;
-            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            --glass-bg: rgba(15, 15, 15, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wakilz – Automated Sales Qualification & Pipeline Generation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: white;
-            margin: 0;
-            overflow-x: hidden;
-            letter-spacing: -0.02em;
-        }
+    :root {
+      --bg: #060d0d;
+      --bg2: #0a1414;
+      --card: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.08);
+      --green: #00f5a0;
+      --green2: #00d9a0;
+      --cyan: #00c8e0;
+      --purple: #c084fc;
+      --pink: #f472b6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --white: #ffffff;
+    }
 
-        /* --- Background Animation --- */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
+    html { scroll-behavior: smooth; }
 
-        /* --- Custom Gradients & UI Elements --- */
-        .text-gradient {
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
 
-        .btn-primary {
-            background: var(--accent-gradient);
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    /* ===== CANVAS BACKGROUND ===== */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
-        }
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(6,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+    }
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
 
-        /* --- Chat Animation Logic --- */
-        .message {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInUp 0.5s ease forwards;
-        }
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
 
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .nav-logo-icon svg { width: 20px; height: 20px; color: #000; }
 
-        .typing-cursor::after {
-            content: "";
-            width: 2px;
-            height: 1.2em;
-            background: #a855f7;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 2px;
-            animation: blink 0.8s infinite;
-        }
+    .nav-logo span {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.3px;
+    }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
 
-        /* Custom Scrollbar */
-        .chat-scroll::-webkit-scrollbar { width: 5px; }
-        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-    </style>
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    .btn-primary {
+      background: var(--green);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-outline:hover { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
+
+    /* ===== SECTION WRAPPER ===== */
+    section { position: relative; z-index: 1; }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 100px 80px 60px;
+      gap: 60px;
+    }
+
+    .hero-left { flex: 1; max-width: 560px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(0,245,160,0.1);
+      border: 1px solid rgba(0,245,160,0.25);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 28px;
+    }
+
+    .badge svg { width: 14px; height: 14px; }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+      color: var(--white);
+    }
+
+    .hero-title .grad-green { color: var(--green); }
+    .hero-title .grad-purple { color: var(--purple); }
+
+    .hero-desc {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 460px;
+    }
+
+    .hero-desc strong { color: var(--green); font-weight: 700; }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .btn-hero {
+      background: var(--green);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      padding: 13px 26px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-hero:hover { opacity: 0.85; }
+
+    .btn-hero-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 50px;
+      padding: 13px 26px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color 0.2s;
+    }
+
+    .btn-hero-outline:hover { border-color: rgba(255,255,255,0.5); }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+    }
+
+    .stat-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ===== CHAT WIDGET ===== */
+    .hero-right { flex: 0 0 480px; }
+
+    .chat-window {
+      background: rgba(10,20,20,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,245,160,0.08);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(0,245,160,0.04);
+    }
+
+    .chat-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    .chat-agent-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .chat-messages {
+      padding: 20px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .msg.visible { opacity: 1; }
+
+    .msg-left {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      border-radius: 4px 12px 12px 12px;
+    }
+
+    .msg-right {
+      align-self: flex-end;
+      background: rgba(0,245,160,0.18);
+      color: var(--white);
+      border-radius: 12px 4px 12px 12px;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px 12px 12px 12px;
+      align-self: flex-start;
+      width: fit-content;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .typing-indicator.visible { opacity: 1; }
+
+    .typing-indicator span {
+      width: 7px; height: 7px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%,80%,100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
+
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .chat-send-btn {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border: none;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn svg { width: 16px; height: 16px; color: #000; }
+
+    /* ===== SCROLL INDICATOR ===== */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .scroll-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,245,160,0.1);
+      border: 1px solid rgba(0,245,160,0.25);
+      border-radius: 50px;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      text-decoration: none;
+    }
+
+    /* ===== SERVICES ===== */
+    #services {
+      padding: 100px 80px;
+      text-align: center;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      color: var(--white);
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .section-title .grad-cyan { color: var(--cyan); }
+    .section-title .grad-purple { color: var(--purple); }
+    .section-title .grad-green { color: var(--green); }
+
+    .section-desc {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 60px;
+      line-height: 1.7;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      text-align: left;
+    }
+
+    .service-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.25s, transform 0.2s;
+    }
+
+    .service-card:hover {
+      border-color: rgba(0,245,160,0.2);
+      transform: translateY(-3px);
+    }
+
+    .service-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+      font-size: 20px;
+    }
+
+    .icon-green { background: rgba(0,245,160,0.12); }
+    .icon-cyan { background: rgba(0,200,224,0.12); }
+    .icon-pink { background: rgba(244,114,182,0.12); }
+    .icon-orange { background: rgba(251,146,60,0.12); }
+    .icon-purple { background: rgba(192,132,252,0.12); }
+    .icon-teal { background: rgba(45,212,191,0.12); }
+
+    .service-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .service-card p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .service-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .service-features li {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .service-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ===== CASE STUDIES ===== */
+    #case-studies {
+      padding: 100px 80px;
+      text-align: center;
+    }
+
+    .cases-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    .case-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      transition: border-color 0.25s;
+    }
+
+    .case-card:nth-child(2) { flex-direction: row-reverse; }
+
+    .case-card:hover { border-color: rgba(0,245,160,0.2); }
+
+    .case-info { flex: 1; }
+
+    .case-info h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .case-info p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .case-link {
+      color: var(--green);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .case-link:hover { text-decoration: underline; }
+
+    .case-stats {
+      display: flex;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    .case-stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 18px 22px;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .case-stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.5px;
+    }
+
+    .case-stat-label {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ===== INTEGRATIONS ===== */
+    #integrations {
+      padding: 100px 80px;
+      text-align: center;
+    }
+
+    .integrations-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .int-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 22px 14px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.25s, transform 0.2s;
+    }
+
+    .int-card:hover {
+      border-color: rgba(0,245,160,0.2);
+      transform: translateY(-2px);
+    }
+
+    .int-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .int-name { font-size: 13px; font-weight: 600; color: var(--white); }
+    .int-desc { font-size: 11px; color: var(--muted); text-align: center; }
+
+    .int-note {
+      margin-top: 32px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    #testimonials {
+      padding: 100px 80px;
+      text-align: center;
+    }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      text-align: left;
+      margin-top: 10px;
+    }
+
+    .testi-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 26px;
+      position: relative;
+    }
+
+    .testi-stars {
+      color: #f59e0b;
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .testi-quote-icon {
+      position: absolute;
+      top: 20px; right: 20px;
+      font-size: 40px;
+      color: rgba(255,255,255,0.06);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .testi-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .testi-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    .testi-author-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .testi-author-role {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ===== CTA SECTION ===== */
+    #cta {
+      padding: 60px 80px 100px;
+    }
+
+    .cta-card {
+      background: linear-gradient(135deg, rgba(0,245,160,0.08) 0%, rgba(192,132,252,0.08) 50%, rgba(0,200,224,0.08) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-icon {
+      width: 60px; height: 60px;
+      background: var(--green);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+    }
+
+    .cta-icon svg { width: 30px; height: 30px; color: #000; }
+
+    .cta-title {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    .cta-title .grad-green { color: var(--green); }
+    .cta-title .grad-cyan { color: var(--cyan); }
+    .cta-title .grad-purple { color: var(--purple); }
+
+    .cta-desc {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 60px 80px 40px;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-top: 12px;
+      max-width: 220px;
+    }
+
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+
+    .footer-col a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: var(--white); }
+
+    .footer-connect a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 24px;
+    }
+
+    .footer-bottom p { font-size: 13px; color: var(--muted); }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-bottom-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .footer-bottom-links a:hover { color: var(--white); }
+
+    /* ===== PROVEN RESULTS SECTION ===== */
+    #proven-results-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .nav-logo-link { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  </style>
 </head>
 <body>
 
-    <div id="canvas-container">
-        <canvas id="starField"></canvas>
+<!-- Animated background canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
     </div>
+    <span>wakilz</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#case-studies">Case Studies</a></li>
+    <li><a href="#integrations">Integrations</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
+  </ul>
+  <a href="#cta" class="btn-primary">Get Started</a>
+</nav>
 
-    <!-- Nav Bar -->
-    <nav class="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto relative z-10">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
-                <span class="text-white font-bold text-xs">K</span>
-            </div>
-            <span class="text-xl font-semibold tracking-tighter">Kimi</span>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Enterprise-Grade AI Agents
+    </div>
+    <h1 class="hero-title">
+      Automated <span class="grad-green">Sales Qualification</span> &amp;<br>
+      Pipeline Generation
+    </h1>
+    <p class="hero-desc">
+      Stop leaking revenue from unqualified leads. We build conversational AI that engages, qualifies, and routes high-value B2B prospects to your calendar — <strong>24/7</strong>.
+    </p>
+    <div class="hero-ctas">
+      <a href="#cta" class="btn-hero">Book Intro Call →</a>
+      <a href="#case-studies" class="btn-hero-outline">See Case Studies</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val">3x</div>
+        <div class="stat-label">More Meetings</div>
+      </div>
+      <div>
+        <div class="stat-val">~40%</div>
+        <div class="stat-label">SDR Hours Saved</div>
+      </div>
+      <div>
+        <div class="stat-val">99.9%</div>
+        <div class="stat-label">Uptime SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-avatar">AI</div>
+        <div>
+          <div class="chat-agent-name">Enterprise SDR Agent</div>
+          <div class="chat-status"><span class="dot"></span>Online • Responds instantly</div>
         </div>
-        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-400">
-            <a href="#" class="hover:text-white transition">Product</a>
-            <a href="#" class="hover:text-white transition">Developers</a>
-            <a href="#" class="hover:text-white transition">Showcase</a>
-        </div>
-        <button class="px-5 py-2 rounded-full border border-white/10 text-sm font-medium bg-white/5 hover:bg-white/10 transition">
-            Sign In
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages injected by JS -->
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" placeholder="Type a message..." readonly />
+        <button class="chat-send-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
         </button>
-    </nav>
+      </div>
+    </div>
+  </div>
 
-    <!-- Hero Section -->
-    <main class="relative z-10 flex flex-col items-center pt-24 px-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-medium mb-8">
-            <span class="flex h-2 w-2 rounded-full bg-purple-500"></span>
-            Kimi K2.5 Model is now live
+  <a href="#services" class="scroll-indicator" style="position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:2;">
+    <div class="scroll-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      What We Build
+    </div>
+  </a>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    What We Build
+  </div>
+  <h2 class="section-title">Enterprise Revenue Operations <span class="grad-cyan">AI</span></h2>
+  <p class="section-desc">We build autonomous AI agents that handle the heavy lifting across your entire sales funnel — from top-of-funnel capture to fully qualified meetings.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon icon-green">💬</div>
+      <h3>Inbound Lead Capture</h3>
+      <p>Deploy intelligent agents that instantly engage high-intent visitors, preventing pipeline leakage outside of business hours.</p>
+      <ul class="service-features">
+        <li>Omnichannel deployment (Web, WhatsApp)</li>
+        <li>Dynamic intent recognition</li>
+        <li>Seamless CRM synchronization</li>
+        <li>Zero-latency response rates</li>
+      </ul>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-cyan">🎯</div>
+      <h3>Automated Sales Qualification</h3>
+      <p>Implement sophisticated qualification matrices that filter out noise and route only enterprise-ready prospects to your Account Executives.</p>
+      <ul class="service-features">
+        <li>BANT & MEDDIC qualification frameworks</li>
+        <li>Contextual objection handling</li>
+        <li>Firmographic data enrichment</li>
+        <li>Conditional logic routing</li>
+      </ul>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-pink">🚀</div>
+      <h3>Full-Cycle Sales Automation</h3>
+      <p>End-to-end automation of the sales discovery process. Our LLM-powered agents conduct preliminary needs analysis before human handover.</p>
+      <ul class="service-features">
+        <li>Conversational discovery flows</li>
+        <li>Automated pipeline stage updates</li>
+        <li>Drip campaign triggers</li>
+        <li>Revenue attribution tracking</li>
+      </ul>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-orange">🎙️</div>
+      <h3>Conversational Voice AI</h3>
+      <p>Deploy low-latency, human-like voice agents for inbound call deflection and outbound appointment setting at scale.</p>
+      <ul class="service-features">
+        <li>Sub-500ms latency voice response</li>
+        <li>Advanced semantic understanding</li>
+        <li>Real-time sentiment analysis</li>
+        <li>Telephony & VoIP integration</li>
+      </ul>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-purple">🛡️</div>
+      <h3>Intelligent Support Resolution</h3>
+      <p>Deflect Level 1 & 2 support tickets with RAG-enabled agents trained securely on your company's proprietary knowledge base.</p>
+      <ul class="service-features">
+        <li>Vector database RAG architecture</li>
+        <li>Automated Jira/Zendesk ticketing</li>
+        <li>Human-in-the-loop escalation</li>
+        <li>Enterprise-grade data privacy</li>
+      </ul>
+    </div>
+    <div class="service-card">
+      <div class="service-icon icon-teal">📅</div>
+      <h3>Frictionless Meeting Scheduling</h3>
+      <p>Eliminate back-and-forth emails with contextual scheduling agents that understand timezones, availability, and meeting priority.</p>
+      <ul class="service-features">
+        <li>Direct G-Suite & Office365 sync</li>
+        <li>Multi-stakeholder coordination</li>
+        <li>Automated prep-material delivery</li>
+        <li>No-show mitigation workflows</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section id="case-studies">
+  <div class="section-badge">📈 Proven Results</div>
+  <h2 class="section-title">Proven <span class="grad-green">Enterprise</span> <span class="grad-purple">Impact</span></h2>
+  <p class="section-desc">Explore how leading organizations leverage our conversational AI to accelerate revenue.</p>
+  <div class="cases-wrap">
+    <div class="case-card">
+      <div class="case-info">
+        <h3>Zahimo Studio</h3>
+        <p>Built a lead generation and qualification chatbot for Zahimo Studio, a premium web design agency. The bot engages potential clients, qualifies their projects, and books free consultation calls automatically on their website.</p>
+        <a href="#" class="case-link">Visit Zahimo Studio ↗</a>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat"><div class="case-stat-val">45%</div><div class="case-stat-label">Lead Increase</div></div>
+        <div class="case-stat"><div class="case-stat-val">3.2x</div><div class="case-stat-label">Conversion Lift</div></div>
+        <div class="case-stat"><div class="case-stat-val">24/7</div><div class="case-stat-label">Engagement</div></div>
+      </div>
+    </div>
+    <div class="case-card">
+      <div class="case-stats">
+        <div class="case-stat"><div class="case-stat-val">38%</div><div class="case-stat-label">Lead Quality</div></div>
+        <div class="case-stat"><div class="case-stat-val">60%</div><div class="case-stat-label">Time Saved</div></div>
+        <div class="case-stat"><div class="case-stat-val">5.0/5</div><div class="case-stat-label">Rating</div></div>
+      </div>
+      <div class="case-info">
+        <h3>Daava Group</h3>
+        <p>Developed an intelligent lead qualification bot for Daava Group, a 3D printing & modelling company. The bot qualifies project specifications, estimates timelines, handles client inquiries, and routes high-value opportunities directly to their sales team.</p>
+        <a href="#" class="case-link">Visit Daava Group ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section id="integrations">
+  <div class="section-badge">⇌ 18 Native Integrations</div>
+  <h2 class="section-title">Works With <span class="grad-green">Tools</span> You <span class="grad-cyan">Al</span><span class="grad-purple">ready</span> Use</h2>
+  <p class="section-desc">Our agents plug directly into your existing stack — CRMs, messengers, calendars, and more — with zero-code setup.</p>
+  <div class="integrations-grid">
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#ff7a00,#ff4500);">H</div>
+      <div class="int-name">HubSpot</div>
+      <div class="int-desc">CRM & Marketing Hub</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#00a1e0,#0070c0);">S</div>
+      <div class="int-name">Salesforce</div>
+      <div class="int-desc">Enterprise CRM</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#4a154b,#7c2d8e);">S</div>
+      <div class="int-name">Slack</div>
+      <div class="int-desc">Team Messaging</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#464EB8,#6264a7);">M</div>
+      <div class="int-name">Microsoft Teams</div>
+      <div class="int-desc">Business Communication</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#1a73e8,#4285f4);">G</div>
+      <div class="int-name">Google Calendar</div>
+      <div class="int-desc">Scheduling & Booking</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#ff4a00,#ff6b00);">Z</div>
+      <div class="int-name">Zapier</div>
+      <div class="int-desc">Workflow Automation</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#333,#555);">N</div>
+      <div class="int-name">Notion</div>
+      <div class="int-desc">Knowledge Base & Docs</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#6772e5,#9b59b6);">S</div>
+      <div class="int-name">Stripe</div>
+      <div class="int-desc">Payments & Billing</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#25D366,#128C7E);">W</div>
+      <div class="int-name">WhatsApp</div>
+      <div class="int-desc">Messaging & Outreach</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#f22f46,#c0182b);">T</div>
+      <div class="int-name">Twilio</div>
+      <div class="int-desc">SMS & Voice API</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#03363d,#1f7a8c);">Z</div>
+      <div class="int-name">Zendesk</div>
+      <div class="int-desc">Customer Support</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#006bff,#0052cc);">C</div>
+      <div class="int-name">Calendly</div>
+      <div class="int-desc">Meeting Scheduling</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#ffe01b,#c7a100);">M</div>
+      <div class="int-name">Mailchimp</div>
+      <div class="int-desc">Email Marketing</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#356ae6,#1a4fd1);">A</div>
+      <div class="int-name">ActiveCampaign</div>
+      <div class="int-desc">Marketing Automation</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#1e4ed8,#2563eb);">I</div>
+      <div class="int-name">Intercom</div>
+      <div class="int-desc">Customer Messaging</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#0080ff,#003f88);">P</div>
+      <div class="int-name">Pipedrive</div>
+      <div class="int-desc">Sales Pipeline CRM</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1);">A</div>
+      <div class="int-name">Airtable</div>
+      <div class="int-desc">Database & Workflows</div>
+    </div>
+    <div class="int-card">
+      <div class="int-icon" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);">M</div>
+      <div class="int-name">Make</div>
+      <div class="int-desc">Advanced Automation</div>
+    </div>
+  </div>
+  <p class="int-note">All integrations are bi-directional and require zero code to set up.</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-badge">⭐ Client Love</div>
+  <h2 class="section-title">What Clients <span class="grad-purple">Say</span></h2>
+  <p class="section-desc">Join hundreds of satisfied clients who've transformed their business with conversational AI.</p>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"wakilz's expertise in conversational AI is exceptional. The chatbot he built for us reduced our support tickets by 60% in the first month. Highly recommended!"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#00f5a0,#00b894);">SA</div>
+        <div>
+          <div class="testi-author-name">Sarah Anderson</div>
+          <div class="testi-author-role">Director, TechFlow Corp</div>
         </div>
-
-        <h1 class="text-5xl md:text-7xl font-bold text-center max-w-4xl tracking-tight leading-[1.1] mb-6">
-            Build the next generation <br>
-            <span class="text-gradient">with AI Intelligence.</span>
-        </h1>
-
-        <p class="text-gray-400 text-center max-w-xl text-lg mb-10 leading-relaxed">
-            From design to deployment, Kimi assists in every step. Build high-performance websites and applications using our natural language interface.
-        </p>
-
-        <div class="flex gap-4 mb-20">
-            <button class="btn-primary px-8 py-4 rounded-full font-bold text-sm">
-                Get Started for Free
-            </button>
-            <button class="px-8 py-4 rounded-full bg-white/5 border border-white/10 font-bold text-sm hover:bg-white/10 transition">
-                Documentation
-            </button>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"The lead qualification bot increased our sales team's productivity immediately. We're closing more deals and spending less time on unqualified leads."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#6c63ff,#a78bfa);">DP</div>
+        <div>
+          <div class="testi-author-name">Dr. Priya Patel</div>
+          <div class="testi-author-role">CEO, HealthTech Solutions</div>
         </div>
-
-        <!-- ENLARGED CHAT WINDOW -->
-        <div class="glass-card w-full max-w-4xl h-[550px] flex flex-col overflow-hidden mb-32">
-            <!-- Chat Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/5">
-                <div class="flex items-center gap-2">
-                    <div class="flex gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-                    </div>
-                    <div class="ml-4 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                        kimi-agent-v2.5
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    Ready to build
-                </div>
-            </div>
-
-            <!-- Chat Content Area -->
-            <div id="chatBox" class="flex-1 p-8 overflow-y-auto chat-scroll flex flex-col gap-6">
-                <!-- Messages Injected Here -->
-            </div>
-
-            <!-- Fake Input Bar -->
-            <div class="p-4 border-t border-white/5 bg-white/5">
-                <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-black/40 border border-white/10">
-                    <div class="flex-1 text-sm text-gray-500">Ask Kimi to build something...</div>
-                    <div class="flex items-center gap-2">
-                        <kbd class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-gray-500">⌘</kbd>
-                        <kbd class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-gray-500">K</kbd>
-                    </div>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"The voice bot implementation was seamless. Our appointment no-shows dropped from 25% to 8%. The ROI was undeniable."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899);">MK</div>
+        <div>
+          <div class="testi-author-name">Michael K.</div>
+          <div class="testi-author-role">Manager, Premier Services</div>
         </div>
-    </main>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"Outstanding work! The customization and attention to detail were incredible. wakilz understood our unique needs perfectly."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#fb923c,#f97316);">JC</div>
+        <div>
+          <div class="testi-author-name">Jennifer Chen</div>
+          <div class="testi-author-role">Operations Lead, Global Retail</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"The professionalism and technical expertise demonstrated exceeded our expectations. Communication was clear throughout the entire project."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#34d399,#10b981);">RJ</div>
+        <div>
+          <div class="testi-author-name">Robert Johnson</div>
+          <div class="testi-author-role">VP Sales, Enterprise Corp</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-quote-icon">"</div>
+      <p class="testi-text">"Working with wakilz was a game-changer. The bot handles complex conversations that I thought would need human agents."</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#60a5fa,#3b82f6);">EL</div>
+        <div>
+          <div class="testi-author-name">Emily López</div>
+          <div class="testi-author-role">Founder, E-commerce Hub</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- Background Stars Logic -->
-    <script>
-        const canvas = document.getElementById('starField');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-card">
+    <div class="cta-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <h2 class="cta-title">Ready to Scale Your<br><span class="grad-green">Revenue</span> <span class="grad-cyan">Operations</span><span class="grad-purple">?</span></h2>
+    <p class="cta-desc">Let's discuss how conversational AI can automate your sales, support, and lead generation. Schedule a free consultation today.</p>
+    <a href="#" class="btn-primary" style="font-size:15px;padding:14px 30px;">Book Strategy Discovery Call →</a>
+  </div>
+</section>
 
-        function initStars() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            stars = [];
-            for (let i = 0; i < 250; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 1.5,
-                    opacity: Math.random(),
-                    fade: Math.random() * 0.02
-                });
-            }
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <span style="font-size:18px;font-weight:700;color:#fff;">wakilz</span>
+      </a>
+      <p>Building the future of conversational intelligence for enterprise revenue operations.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Lead Generation</a></li>
+        <li><a href="#">Lead Qualification</a></li>
+        <li><a href="#">Sales Automation</a></li>
+        <li><a href="#">Voice Bots</a></li>
+        <li><a href="#">Support Bots</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Case Studies</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col footer-connect">
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="mailto:contact@wakilz.com">✉ contact@wakilz.com</a></li>
+        <li><a href="#">🔗 LinkedIn</a></li>
+        <li><a href="#">🐙 GitHub</a></li>
+        <li><a href="#">🌐 Portfolio</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 wakilz. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ===== CANVAS BACKGROUND (nodes + connections) =====
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [], animId;
+
+  const NUM_NODES = 90;
+  const MAX_DIST = 160;
+  const NODE_COLOR = 'rgba(0,245,160,';
+  const LINE_COLOR = 'rgba(0,245,160,';
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createNodes() {
+    nodes = [];
+    for (let i = 0; i < NUM_NODES; i++) {
+      nodes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 2 + 1,
+        // some nodes are pink/cyan
+        color: Math.random() < 0.08 ? 'pink' : Math.random() < 0.06 ? 'cyan' : 'green'
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // draw lines
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.18;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = LINE_COLOR + alpha + ')';
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
         }
+      }
+    }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            stars.forEach(s => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-                ctx.fill();
-                s.opacity += s.fade;
-                if (s.opacity > 1 || s.opacity < 0.1) s.fade = -s.fade;
-            });
-            requestAnimationFrame(draw);
-        }
+    // draw nodes
+    for (const n of nodes) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      if (n.color === 'pink') {
+        ctx.fillStyle = 'rgba(244,114,182,0.85)';
+      } else if (n.color === 'cyan') {
+        ctx.fillStyle = 'rgba(0,200,224,0.85)';
+      } else {
+        ctx.fillStyle = 'rgba(0,245,160,0.7)';
+      }
+      ctx.fill();
+    }
+  }
 
-        window.addEventListener('resize', initStars);
-        initStars();
-        draw();
-    </script>
+  function move() {
+    for (const n of nodes) {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    }
+  }
 
-    <!-- Animated Chat Messaging Logic -->
-    <script>
-        const chatBox = document.getElementById('chatBox');
-        const conversation = [
-            { role: 'user', text: "Hey Kimi, can you build me a dashboard for my SaaS startup?" },
-            { role: 'assistant', text: "Of course! I'm setting up a Next.js 14 project with Tailwind CSS and Framer Motion. I'll include a dark-mode first design, real-time charts, and a glass-morphic sidebar. Shall we proceed?" },
-            { role: 'user', text: "Yes, and make sure the charts use purple and pink gradients to match my brand." },
-            { role: 'assistant', text: "Got it. Applying custom Chart.js configurations with linear gradients. I'm also adding a responsive layout for mobile users. Your preview is generating now..." }
-        ];
+  function loop() {
+    move();
+    draw();
+    animId = requestAnimationFrame(loop);
+  }
 
-        async function typeText(element, text) {
-            element.classList.add('typing-cursor');
-            for (let i = 0; i <= text.length; i++) {
-                element.textContent = text.slice(0, i);
-                await new Promise(r => setTimeout(r, 20 + Math.random() * 20));
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-            element.classList.remove('typing-cursor');
-        }
+  resize();
+  createNodes();
+  loop();
+  window.addEventListener('resize', () => { resize(); createNodes(); });
+})();
 
-        async function startChat() {
-            for (const msg of conversation) {
-                await new Promise(r => setTimeout(r, 800));
-                
-                const wrapper = document.createElement('div');
-                wrapper.className = `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} message`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `max-w-[80%] px-5 py-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === 'user' 
-                    ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-100' 
-                    : 'bg-white/5 border border-white/10 text-gray-200'
-                }`;
-                
-                wrapper.appendChild(bubble);
-                chatBox.appendChild(wrapper);
-                
-                await typeText(bubble, msg.text);
-            }
+// ===== CHAT ANIMATION =====
+(function() {
+  const messages = [
+    { side: 'left', text: 'Hi! How can I help you today?' },
+    { side: 'right', text: 'Just looking around. Not sure if AI is right for us.' },
+    { side: 'left', text: "I completely understand. Many of our clients start there. What's your current biggest bottleneck in the sales process?" },
+    { side: 'right', text: 'Our reps spend too much time chasing unqualified leads.' },
+    { side: 'left', text: "That's exactly what we solve. Our AI qualifies leads 24/7 so your reps focus only on hot prospects. Want to see a quick demo?" },
+    { side: 'right', text: 'Yes, that sounds interesting!' },
+    { side: 'left', text: "Great! I'm booking a 15-min discovery call for you right now. When works best — this week or next?" },
+  ];
 
-            // Loop back after delay
-            setTimeout(() => {
-                chatBox.innerHTML = '';
-                startChat();
-            }, 5000);
-        }
+  const container = document.getElementById('chat-messages');
+  let msgIndex = 0;
 
-        window.onload = startChat;
-    </script>
+  function addTyping() {
+    const el = document.createElement('div');
+    el.className = 'typing-indicator';
+    el.innerHTML = '<span></span><span></span><span></span>';
+    container.appendChild(el);
+    setTimeout(() => el.classList.add('visible'), 50);
+    return el;
+  }
+
+  function addMessage(msg, callback) {
+    const typing = msg.side === 'left' ? addTyping() : null;
+    const delay = msg.side === 'left' ? 900 : 300;
+
+    setTimeout(() => {
+      if (typing) { typing.classList.remove('visible'); setTimeout(() => typing.remove(), 300); }
+      const el = document.createElement('div');
+      el.className = 'msg msg-' + (msg.side === 'left' ? 'left' : 'right');
+      el.textContent = msg.text;
+      container.appendChild(el);
+      setTimeout(() => el.classList.add('visible'), 50);
+      container.scrollTop = container.scrollHeight;
+      if (callback) setTimeout(callback, 1200);
+    }, delay + 600);
+  }
+
+  function playSequence() {
+    container.innerHTML = '';
+    msgIndex = 0;
+
+    function next() {
+      if (msgIndex >= messages.length) {
+        // pause then restart
+        setTimeout(playSequence, 4000);
+        return;
+      }
+      addMessage(messages[msgIndex], next);
+      msgIndex++;
+    }
+    next();
+  }
+
+  playSequence();
+})();
+</script>
 </body>
 </html>
